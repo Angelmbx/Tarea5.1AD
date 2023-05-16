@@ -288,12 +288,7 @@ public class DepartamentoEXistDao extends AbstractGenericDao<Departamento> imple
 				
 				Resource res = null;
 				ResourceIterator i = result.getIterator();
-				
-//				for (int j=0; j<result.getSize(); j++) {
-//					
-//					listadeps.add(stringNodeToDepartamento(res.getContent().toString()));
-//					
-//				}
+			
 				
 				while (i.hasMoreResources()) {
 					try {
