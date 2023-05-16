@@ -7,6 +7,7 @@ package modelo.dao.departamento;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -267,9 +268,56 @@ public class DepartamentoEXistDao extends AbstractGenericDao<Departamento> imple
 		return false;
 	}
 
+	
 	@Override
 	public List<Departamento> findAll() {
-		return null;
-	}
 
+		
+		List<Departamento> listadeps= new ArrayList<>();
+
+			try (Collection col = DatabaseManager.getCollection(
+					dataSource.getUrl() + dataSource.getColeccionDepartamentos(), dataSource.getUser(),
+					dataSource.getPwd())) {
+
+				XQueryService xqs = (XQueryService) col.getService("XQueryService", "1.0");
+				xqs.setProperty("indent", "yes");
+
+				CompiledExpression compiled = xqs
+						.compile("for $dept in doc(\"departamentos.xml\")//DEP_ROW return $dept");
+				ResourceSet result = xqs.execute(compiled);
+				
+				Resource res = null;
+				ResourceIterator i = result.getIterator();
+				
+//				for (int j=0; j<result.getSize(); j++) {
+//					
+//					listadeps.add(stringNodeToDepartamento(res.getContent().toString()));
+//					
+//				}
+				
+				while (i.hasMoreResources()) {
+					try {
+						res = i.nextResource();
+
+						listadeps.add(stringNodeToDepartamento(res.getContent().toString()));
+
+					} finally {
+						// dont forget to cleanup resources
+						try {
+							((EXistResource) res).freeResources();
+						} catch (XMLDBException xe) {
+							
+							xe.printStackTrace();
+						}
+					}
+				}
+				
+
+			} catch (XMLDBException e) {
+		
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		return listadeps;
+	}
 }
