@@ -21,6 +21,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.exist.xmldb.EXistResource;
+import org.neodatis.odb.OID;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -265,7 +266,29 @@ public class DepartamentoEXistDao extends AbstractGenericDao<Departamento> imple
 
 	@Override
 	public boolean delete(Departamento entity) {
-		return false;
+		
+		boolean exito = false;
+	
+		try (Collection col = DatabaseManager.getCollection(
+				dataSource.getUrl() + dataSource.getColeccionDepartamentos(), dataSource.getUser(),
+				dataSource.getPwd()))  {
+			
+				XQueryService xqs = (XQueryService) col.getService("XQueryService", "1.0");
+				xqs.setProperty("indent", "yes");
+			
+				Resource res = entity.;
+				
+				col.removeResource(res);
+			
+			System.out.println("Se ha eliminado el departamento " + entity);
+			
+			exito = true;
+			
+		} catch (Exception ex) {
+			System.err.println("Error al eliminar el departamento "+ entity + ex.getMessage());
+		
+		}
+		return exito;
 	}
 
 	
